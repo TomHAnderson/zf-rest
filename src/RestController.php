@@ -327,12 +327,6 @@ class RestController extends AbstractRestfulController
         // Check for an API-Problem in the event
         $return = $e->getParam('api-problem', false);
 
-        // Override RESTful deleteList method
-        if (strtolower($e->getRequest()->getMethod()) == 'delete' &&
-            $this->getIdentifier($e->getRouteMatch(), $e->getRequest()) === false) {
-            $return = $this->deleteList($this->processBodyContent($e->getRequest()));
-        }
-
         // If no return value dispatch the parent event
         if (!$return) {
             $return = parent::onDispatch($e);
@@ -438,7 +432,7 @@ class RestController extends AbstractRestfulController
         return $response;
     }
 
-    public function deleteList($data = null)
+    public function deleteList($data)
     {
         $events = $this->getEventManager();
         $events->trigger('deleteList.pre', $this, array());
@@ -896,16 +890,5 @@ class RestController extends AbstractRestfulController
     public function processPostData(RequestInterface $request)
     {
         return $this->create($this->bodyParams());
-    }
-
-    /**
-     * Override parent - pull from content negotiation helpers
-     *
-     * @param Request $request
-     * @return null|array|\Traversable
-     */
-    protected function processBodyContent($request)
-    {
-        return $this->bodyParams();
     }
 }
